@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Docker Compose Configuration and CI&sol;CD Pipeline Overview</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="docker-compose-configuration-and-cicd-pipeline-overview">Docker Compose Configuration and CI/CD Pipeline Overview</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#docker-compose-configuration-and-cicd-pipeline-overview">Docker Compose Configuration and CI/CD Pipeline Overview</a>
+<ul>
+<li><a href="#table-of-contents">Table of Contents</a></li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#cicd-with-azure-devops">CI/CD with Azure DevOps</a>
+<ul>
+<li><a href="#pipeline-creation">Pipeline Creation</a></li>
+<li><a href="#pipeline-configuration">Pipeline Configuration</a></li>
+</ul>
+</li>
+<li><a href="#overview-1">Overview</a></li>
+<li><a href="#cicd-with-azure-devops-1">CI/CD with Azure DevOps</a>
+<ul>
+<li><a href="#pipeline-creation-1">Pipeline Creation</a></li>
+</ul>
+</li>
+<li><a href="#logging-stack-setup-with-fluentd-and-opensearch">Logging Stack Setup with Fluentd and OpenSearch</a></li>
+<li><a href="#security-best-practices">Security Best Practices</a></li>
+<li><a href="#bonus-documentation-and-ansible-integration">Bonus: Documentation and Ansible Integration</a>
+<ul>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#ansible-for-fluentd-and-opensearch-setup">Ansible for Fluentd and OpenSearch Setup</a></li>
+</ul>
+</li>
+<li><a href="#docker-compose-configuration">Docker Compose Configuration</a>
+<ul>
+<li><a href="#networks">Networks</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#volumes">Volumes</a></li>
+</ul>
+</li>
+<li><a href="#docker-image-optimization">Docker Image Optimization</a></li>
+<li><a href="#screenshots">Screenshots</a>
+<ul>
+<li><a href="#example-application-screenshot">Example Application Screenshot</a></li>
+<li><a href="#cicd-pipeline-screenshot">CI/CD Pipeline Screenshot</a></li>
+<li><a href="#opensearch-dashboard-screenshot">OpenSearch Dashboard Screenshot</a></li>
+</ul>
+</li>
+<li><a href="#contact-information">Contact Information</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>This document provides a comprehensive overview of the Docker Compose configuration for the application, the CI/CD pipeline setup using Azure DevOps, and the implementation of a logging stack utilizing Fluentd and OpenSearch. Additionally, it outlines strategies for optimizing Docker images and ensuring adherence to security best practices.</p>
+<h2 id="cicd-with-azure-devops">CI/CD with Azure DevOps</h2>
+<h3 id="pipeline-creation">Pipeline Creation</h3>
+<ol>
+<li>
+<p><strong>Pipeline Configuration</strong>: Create a pipeline in Azure DevOps to automate the deployment of the application. This pipeline will encompass stages for building, testing, and deploying the application.</p>
+</li>
+<li>
+<p><strong>Docker Swarm for Orchestration</strong>:</p>
+<ul>
+<li>Implement Docker Swarm to facilitate the management and orchestration of services, allowing for seamless scaling and deployment across multiple nodes.</li>
+<li>Define the service stack using a <code>docker-compose.yml</code> file that incorporates all necessary services, including <code>todo-api</code>, <code>todo-front</code>, <code>cassandra</code>, <code>fluentd</code>, <code>opensearch</code>, and <code>opensearch-dashboard</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Optimized Docker Images</strong>:</p>
+<ul>
+<li>Utilize multi-stage builds in Dockerfiles to minimize the size of the final images, improving deployment speed and reducing resource consumption.</li>
+<li>Implement caching strategies and eliminate unnecessary layers to further enhance image performance.</li>
+</ul>
+</li>
+<li>
+<p><strong>Branch Policies</strong>:</p>
+<ul>
+<li>Configure branch policies to enforce quality checks prior to deployments, including mandatory pull request reviews and automated testing.</li>
+<li>Establish distinct environments for testing and production to validate code thoroughly before it is merged into the main branches.</li>
+</ul>
+</li>
+</ol>
+<h3 id="pipeline-configuration">Pipeline Configuration</h3>
+<p>The Azure DevOps pipeline is defined to build and deploy the Next.js frontend service. Below is the YAML configuration for the pipeline:</p>
+<pre><code class="language-yaml"><span class="hljs-attr">trigger:</span>
+  <span class="hljs-attr">branches:</span>
+    <span class="hljs-attr">include:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">main</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-string">develop</span>
+
+<span class="hljs-attr">pool:</span>
+  <span class="hljs-attr">vmImage:</span> <span class="hljs-string">&#x27;ubuntu-latest&#x27;</span>
+
+<span class="hljs-attr">jobs:</span>
+<span class="hljs-bullet">-</span> <span class="hljs-attr">job:</span> <span class="hljs-string">BuildNextJsService</span>
+  <span class="hljs-attr">displayName:</span> <span class="hljs-string">&#x27;Build Next.js Frontend&#x27;</span>
+  <span class="hljs-attr">steps:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">script:</span> <span class="hljs-string">|
+      cd todo-front
+      npm install
+      npm run build
+</span>    <span class="hljs-attr">displayName:</span> <span class="hljs-string">&#x27;Build Next.js Frontend&#x27;</span>
+
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">script:</span> <span class="hljs-string">|
+      docker build -t your-docker-repo/todo-front:$(Build.BuildId) .
+</span>    <span class="hljs-attr">displayName:</span> <span class="hljs-string">&#x27;Build Docker Image&#x27;</span>
+
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">task:</span> <span class="hljs-string">Docker@2</span>
+    <span class="hljs-attr">inputs:</span>
+      <span class="hljs-attr">containerRegistry:</span> <span class="hljs-string">&#x27;your-service-connection&#x27;</span> <span class="hljs-comment"># Define your service connection</span>
+      <span class="hljs-attr">repository:</span> <span class="hljs-string">&#x27;your-docker-repo/todo-front&#x27;</span>
+      <span class="hljs-attr">command:</span> <span class="hljs-string">&#x27;push&#x27;</span>
+      <span class="hljs-attr">tags:</span> <span class="hljs-string">&#x27;$(Build.BuildId)&#x27;</span>
+
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">stage:</span> <span class="hljs-string">Deploy</span>
+    <span class="hljs-attr">displayName:</span> <span class="hljs-string">&#x27;Deploy to Environment&#x27;</span>
+    <span class="hljs-attr">jobs:</span>
+    <span class="hljs-bullet">-</span> <span class="hljs-attr">deployment:</span> <span class="hljs-string">DeployNextJsService</span>
+      <span class="hljs-attr">displayName:</span> <span class="hljs-string">&#x27;Deploy Next.js Frontend&#x27;</span>
+      <span class="hljs-attr">environment:</span> <span class="hljs-string">&#x27;test&#x27;</span> <span class="hljs-comment"># Change to your environment</span>
+      <span class="hljs-attr">strategy:</span>
+        <span class="hljs-attr">runOnce:</span>
+          <span class="hljs-attr">deploy:</span>
+            <span class="hljs-attr">steps:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-attr">script:</span> <span class="hljs-string">echo</span> <span class="hljs-string">&quot;Deploying Next.js to test environment&quot;</span>
+              <span class="hljs-attr">displayName:</span> <span class="hljs-string">&#x27;Deploy Next.js&#x27;</span>
+<span class="hljs-comment">## Overview</span>
+
+<span class="hljs-string">This</span> <span class="hljs-string">document</span> <span class="hljs-string">provides</span> <span class="hljs-string">a</span> <span class="hljs-string">comprehensive</span> <span class="hljs-string">overview</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">Docker</span> <span class="hljs-string">Compose</span> <span class="hljs-string">configuration</span> <span class="hljs-string">for</span> <span class="hljs-string">the</span> <span class="hljs-string">application,</span> <span class="hljs-string">the</span> <span class="hljs-string">CI/CD</span> <span class="hljs-string">pipeline</span> <span class="hljs-string">setup</span> <span class="hljs-string">using</span> <span class="hljs-string">Azure</span> <span class="hljs-string">DevOps,</span> <span class="hljs-string">and</span> <span class="hljs-string">the</span> <span class="hljs-string">implementation</span> <span class="hljs-string">of</span> <span class="hljs-string">a</span> <span class="hljs-string">logging</span> <span class="hljs-string">stack</span> <span class="hljs-string">utilizing</span> <span class="hljs-string">Fluentd</span> <span class="hljs-string">and</span> <span class="hljs-string">OpenSearch.</span> <span class="hljs-string">Additionally,</span> <span class="hljs-string">it</span> <span class="hljs-string">outlines</span> <span class="hljs-string">strategies</span> <span class="hljs-string">for</span> <span class="hljs-string">optimizing</span> <span class="hljs-string">Docker</span> <span class="hljs-string">images</span> <span class="hljs-string">and</span> <span class="hljs-string">ensuring</span> <span class="hljs-string">adherence</span> <span class="hljs-string">to</span> <span class="hljs-string">security</span> <span class="hljs-string">best</span> <span class="hljs-string">practices.</span>
+
+<span class="hljs-comment">## CI/CD with Azure DevOps</span>
+
+<span class="hljs-comment">### Pipeline Creation</span>
+
+<span class="hljs-number">1</span><span class="hljs-string">.</span> <span class="hljs-string">**Pipeline</span> <span class="hljs-string">Configuration**:</span> <span class="hljs-string">Create</span> <span class="hljs-string">a</span> <span class="hljs-string">pipeline</span> <span class="hljs-string">in</span> <span class="hljs-string">Azure</span> <span class="hljs-string">DevOps</span> <span class="hljs-string">to</span> <span class="hljs-string">automate</span> <span class="hljs-string">the</span> <span class="hljs-string">deployment</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">application.</span> <span class="hljs-string">This</span> <span class="hljs-string">pipeline</span> <span class="hljs-string">will</span> <span class="hljs-string">encompass</span> <span class="hljs-string">stages</span> <span class="hljs-string">for</span> <span class="hljs-string">building,</span> <span class="hljs-string">testing,</span> <span class="hljs-string">and</span> <span class="hljs-string">deploying</span> <span class="hljs-string">the</span> <span class="hljs-string">application.</span>
+
+<span class="hljs-number">2</span><span class="hljs-string">.</span> <span class="hljs-string">**Docker</span> <span class="hljs-string">Swarm</span> <span class="hljs-string">for</span> <span class="hljs-string">Orchestration**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Implement</span> <span class="hljs-string">Docker</span> <span class="hljs-string">Swarm</span> <span class="hljs-string">to</span> <span class="hljs-string">facilitate</span> <span class="hljs-string">the</span> <span class="hljs-string">management</span> <span class="hljs-string">and</span> <span class="hljs-string">orchestration</span> <span class="hljs-string">of</span> <span class="hljs-string">services,</span> <span class="hljs-string">allowing</span> <span class="hljs-string">for</span> <span class="hljs-string">seamless</span> <span class="hljs-string">scaling</span> <span class="hljs-string">and</span> <span class="hljs-string">deployment</span> <span class="hljs-string">across</span> <span class="hljs-string">multiple</span> <span class="hljs-string">nodes.</span>
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Define</span> <span class="hljs-string">the</span> <span class="hljs-string">service</span> <span class="hljs-string">stack</span> <span class="hljs-string">using</span> <span class="hljs-string">a</span> <span class="hljs-string">`docker-compose.yml`</span> <span class="hljs-string">file</span> <span class="hljs-string">that</span> <span class="hljs-string">incorporates</span> <span class="hljs-string">all</span> <span class="hljs-string">necessary</span> <span class="hljs-string">services,</span> <span class="hljs-string">including</span> <span class="hljs-string">`todo-api`,</span> <span class="hljs-string">`todo-front`,</span> <span class="hljs-string">`cassandra`,</span> <span class="hljs-string">`fluentd`,</span> <span class="hljs-string">`opensearch`,</span> <span class="hljs-string">and</span> <span class="hljs-string">`opensearch-dashboard`.</span>
+
+<span class="hljs-number">3</span><span class="hljs-string">.</span> <span class="hljs-string">**Optimized</span> <span class="hljs-string">Docker</span> <span class="hljs-string">Images**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Utilize</span> <span class="hljs-string">multi-stage</span> <span class="hljs-string">builds</span> <span class="hljs-string">in</span> <span class="hljs-string">Dockerfiles</span> <span class="hljs-string">to</span> <span class="hljs-string">minimize</span> <span class="hljs-string">the</span> <span class="hljs-string">size</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">final</span> <span class="hljs-string">images,</span> <span class="hljs-string">improving</span> <span class="hljs-string">deployment</span> <span class="hljs-string">speed</span> <span class="hljs-string">and</span> <span class="hljs-string">reducing</span> <span class="hljs-string">resource</span> <span class="hljs-string">consumption.</span>
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Implement</span> <span class="hljs-string">caching</span> <span class="hljs-string">strategies</span> <span class="hljs-string">and</span> <span class="hljs-string">eliminate</span> <span class="hljs-string">unnecessary</span> <span class="hljs-string">layers</span> <span class="hljs-string">to</span> <span class="hljs-string">further</span> <span class="hljs-string">enhance</span> <span class="hljs-string">image</span> <span class="hljs-string">performance.</span>
+
+<span class="hljs-number">4</span><span class="hljs-string">.</span> <span class="hljs-string">**Branch</span> <span class="hljs-string">Policies**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Configure</span> <span class="hljs-string">branch</span> <span class="hljs-string">policies</span> <span class="hljs-string">to</span> <span class="hljs-string">enforce</span> <span class="hljs-string">quality</span> <span class="hljs-string">checks</span> <span class="hljs-string">prior</span> <span class="hljs-string">to</span> <span class="hljs-string">deployments,</span> <span class="hljs-string">including</span> <span class="hljs-string">mandatory</span> <span class="hljs-string">pull</span> <span class="hljs-string">request</span> <span class="hljs-string">reviews</span> <span class="hljs-string">and</span> <span class="hljs-string">automated</span> <span class="hljs-string">testing.</span>
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Establish</span> <span class="hljs-string">distinct</span> <span class="hljs-string">environments</span> <span class="hljs-string">for</span> <span class="hljs-string">testing</span> <span class="hljs-string">and</span> <span class="hljs-string">production</span> <span class="hljs-string">to</span> <span class="hljs-string">validate</span> <span class="hljs-string">code</span> <span class="hljs-string">thoroughly</span> <span class="hljs-string">before</span> <span class="hljs-string">it</span> <span class="hljs-string">is</span> <span class="hljs-string">merged</span> <span class="hljs-string">into</span> <span class="hljs-string">the</span> <span class="hljs-string">main</span> <span class="hljs-string">branches.</span>
+
+<span class="hljs-comment">## Logging Stack Setup with Fluentd and OpenSearch</span>
+
+<span class="hljs-number">1</span><span class="hljs-string">.</span> <span class="hljs-string">**Fluentd</span> <span class="hljs-string">Configuration**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Set</span> <span class="hljs-string">up</span> <span class="hljs-string">Fluentd</span> <span class="hljs-string">to</span> <span class="hljs-string">collect</span> <span class="hljs-string">application</span> <span class="hljs-string">logs</span> <span class="hljs-string">and</span> <span class="hljs-string">route</span> <span class="hljs-string">them</span> <span class="hljs-string">to</span> <span class="hljs-string">OpenSearch</span> <span class="hljs-string">for</span> <span class="hljs-string">centralized</span> <span class="hljs-string">logging</span> <span class="hljs-string">and</span> <span class="hljs-string">monitoring.</span>
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Define</span> <span class="hljs-string">input</span> <span class="hljs-string">and</span> <span class="hljs-string">output</span> <span class="hljs-string">configurations</span> <span class="hljs-string">to</span> <span class="hljs-string">handle</span> <span class="hljs-string">various</span> <span class="hljs-string">log</span> <span class="hljs-string">formats</span> <span class="hljs-string">effectively.</span>
+
+<span class="hljs-number">2</span><span class="hljs-string">.</span> <span class="hljs-string">**OpenSearch</span> <span class="hljs-string">Setup**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Deploy</span> <span class="hljs-string">OpenSearch</span> <span class="hljs-string">for</span> <span class="hljs-string">log</span> <span class="hljs-string">storage</span> <span class="hljs-string">and</span> <span class="hljs-string">indexing,</span> <span class="hljs-string">ensuring</span> <span class="hljs-string">proper</span> <span class="hljs-string">configuration</span> <span class="hljs-string">for</span> <span class="hljs-string">high</span> <span class="hljs-string">availability</span> <span class="hljs-string">and</span> <span class="hljs-string">optimal</span> <span class="hljs-string">performance.</span>
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Leverage</span> <span class="hljs-string">security</span> <span class="hljs-string">features,</span> <span class="hljs-string">such</span> <span class="hljs-string">as</span> <span class="hljs-string">role-based</span> <span class="hljs-string">access</span> <span class="hljs-string">control</span> <span class="hljs-string">and</span> <span class="hljs-string">SSL/TLS</span> <span class="hljs-string">encryption,</span> <span class="hljs-string">to</span> <span class="hljs-string">safeguard</span> <span class="hljs-string">log</span> <span class="hljs-string">data.</span>
+
+<span class="hljs-comment">## Security Best Practices</span>
+
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Image</span> <span class="hljs-string">Security**:</span> <span class="hljs-string">Regularly</span> <span class="hljs-string">scan</span> <span class="hljs-string">images</span> <span class="hljs-string">for</span> <span class="hljs-string">vulnerabilities</span> <span class="hljs-string">and</span> <span class="hljs-string">utilize</span> <span class="hljs-string">official</span> <span class="hljs-string">base</span> <span class="hljs-string">images.</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Environment</span> <span class="hljs-string">Variables**:</span> <span class="hljs-string">Store</span> <span class="hljs-string">sensitive</span> <span class="hljs-string">information</span> <span class="hljs-string">in</span> <span class="hljs-string">Azure</span> <span class="hljs-string">DevOps</span> <span class="hljs-string">secure</span> <span class="hljs-string">variables</span> <span class="hljs-string">to</span> <span class="hljs-string">avoid</span> <span class="hljs-string">hardcoding</span> <span class="hljs-string">credentials</span> <span class="hljs-string">in</span> <span class="hljs-string">Dockerfiles</span> <span class="hljs-string">or</span> <span class="hljs-string">application</span> <span class="hljs-string">code.</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Network</span> <span class="hljs-string">Security**:</span> <span class="hljs-string">Utilize</span> <span class="hljs-string">Docker’s</span> <span class="hljs-string">network</span> <span class="hljs-string">segmentation</span> <span class="hljs-string">features</span> <span class="hljs-string">to</span> <span class="hljs-string">isolate</span> <span class="hljs-string">services</span> <span class="hljs-string">and</span> <span class="hljs-string">restrict</span> <span class="hljs-string">container</span> <span class="hljs-string">communication.</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Monitoring</span> <span class="hljs-string">and</span> <span class="hljs-string">Alerts**:</span> <span class="hljs-string">Establish</span> <span class="hljs-string">monitoring</span> <span class="hljs-string">for</span> <span class="hljs-string">the</span> <span class="hljs-string">CI/CD</span> <span class="hljs-string">pipeline</span> <span class="hljs-string">and</span> <span class="hljs-string">logging</span> <span class="hljs-string">stack</span> <span class="hljs-string">to</span> <span class="hljs-string">promptly</span> <span class="hljs-string">detect</span> <span class="hljs-string">and</span> <span class="hljs-string">address</span> <span class="hljs-string">issues.</span>
+
+<span class="hljs-comment">## Bonus: Documentation and Ansible Integration</span>
+
+<span class="hljs-comment">### Documentation</span>
+
+<span class="hljs-attr">Robust documentation is essential for application maintenance and team onboarding. Key components include:</span>
+
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Architecture</span> <span class="hljs-string">Overview**:</span> <span class="hljs-string">A</span> <span class="hljs-string">detailed</span> <span class="hljs-string">description</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">application</span> <span class="hljs-string">architecture</span> <span class="hljs-string">and</span> <span class="hljs-string">service</span> <span class="hljs-string">interactions.</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Deployment</span> <span class="hljs-string">Process**:</span> <span class="hljs-string">Step-by-step</span> <span class="hljs-string">instructions</span> <span class="hljs-string">for</span> <span class="hljs-string">deploying</span> <span class="hljs-string">the</span> <span class="hljs-string">application</span> <span class="hljs-string">via</span> <span class="hljs-string">Azure</span> <span class="hljs-string">DevOps.</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Logging</span> <span class="hljs-string">Configuration**:</span> <span class="hljs-string">Documentation</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">Fluentd</span> <span class="hljs-string">and</span> <span class="hljs-string">OpenSearch</span> <span class="hljs-string">setup,</span> <span class="hljs-string">including</span> <span class="hljs-string">configuration</span> <span class="hljs-string">for</span> <span class="hljs-string">inputs</span> <span class="hljs-string">and</span> <span class="hljs-string">outputs.</span>
+
+<span class="hljs-comment">### Ansible for Fluentd and OpenSearch Setup</span>
+
+<span class="hljs-string">To</span> <span class="hljs-string">automate</span> <span class="hljs-string">Fluentd</span> <span class="hljs-string">and</span> <span class="hljs-string">OpenSearch</span> <span class="hljs-string">deployments,</span> <span class="hljs-attr">Ansible can be utilized:</span>
+
+<span class="hljs-number">1</span><span class="hljs-string">.</span> <span class="hljs-string">**Playbook</span> <span class="hljs-string">Creation**:</span> <span class="hljs-string">Develop</span> <span class="hljs-string">Ansible</span> <span class="hljs-string">playbooks</span> <span class="hljs-string">that</span> <span class="hljs-string">define</span> <span class="hljs-string">installation</span> <span class="hljs-string">and</span> <span class="hljs-string">configuration</span> <span class="hljs-string">procedures</span> <span class="hljs-string">for</span> <span class="hljs-string">Fluentd</span> <span class="hljs-string">and</span> <span class="hljs-string">OpenSearch</span> <span class="hljs-string">on</span> <span class="hljs-string">target</span> <span class="hljs-string">servers.</span>
+<span class="hljs-number">2</span><span class="hljs-string">.</span> <span class="hljs-string">**Role-Based</span> <span class="hljs-string">Configuration**:</span> <span class="hljs-string">Organize</span> <span class="hljs-string">tasks</span> <span class="hljs-string">into</span> <span class="hljs-string">reusable</span> <span class="hljs-string">roles</span> <span class="hljs-string">for</span> <span class="hljs-string">better</span> <span class="hljs-string">maintainability.</span>
+<span class="hljs-number">3</span><span class="hljs-string">.</span> <span class="hljs-string">**Inventory</span> <span class="hljs-string">Management**:</span> <span class="hljs-string">Maintain</span> <span class="hljs-string">an</span> <span class="hljs-string">inventory</span> <span class="hljs-string">file</span> <span class="hljs-string">to</span> <span class="hljs-string">specify</span> <span class="hljs-string">target</span> <span class="hljs-string">servers,</span> <span class="hljs-string">enabling</span> <span class="hljs-string">efficient</span> <span class="hljs-string">scaling</span> <span class="hljs-string">and</span> <span class="hljs-string">management</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">logging</span> <span class="hljs-string">stack.</span>
+
+<span class="hljs-comment">## Docker Compose Configuration</span>
+
+<span class="hljs-comment">### Networks</span>
+
+<span class="hljs-string">|</span> <span class="hljs-string">Network</span> <span class="hljs-string">Name</span>    <span class="hljs-string">|</span> <span class="hljs-string">Driver</span>  <span class="hljs-string">|</span>
+<span class="hljs-string">|------------------|---------|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">todo-network</span>     <span class="hljs-string">|</span> <span class="hljs-string">bridge</span>  <span class="hljs-string">|</span>
+
+<span class="hljs-comment">### Services</span>
+
+<span class="hljs-string">|</span> <span class="hljs-string">Service</span> <span class="hljs-string">Name</span>        <span class="hljs-string">|</span> <span class="hljs-string">Build</span> <span class="hljs-string">Context</span>      <span class="hljs-string">|</span> <span class="hljs-string">Dockerfile</span> <span class="hljs-string">Link</span>                            <span class="hljs-string">|</span> <span class="hljs-string">Ports</span>          <span class="hljs-string">|</span> <span class="hljs-string">Environment</span> <span class="hljs-string">Variables</span>                                                                                     <span class="hljs-string">|</span> <span class="hljs-string">Dependencies</span>                <span class="hljs-string">|</span> <span class="hljs-string">Healthcheck</span> <span class="hljs-string">Command</span>                             <span class="hljs-string">|</span>
+<span class="hljs-string">|---------------------|--------------------|--------------------------------------------|----------------|-----------------------------------------------------------------------------------------------------------|------------------------------|-------------------------------------------------|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">todo-api</span>            <span class="hljs-string">|</span> <span class="hljs-string">`./todo-api`</span>       <span class="hljs-string">|</span> [<span class="hljs-string">Dockerfile</span>]<span class="hljs-string">(./todo-api/Dockerfile)</span>      <span class="hljs-string">|</span> <span class="hljs-string">`8081:8081`</span>    <span class="hljs-string">|</span> <span class="hljs-string">`CASSANDRA_HOST=cassandra`,</span> <span class="hljs-string">`CASSANDRA_PORT=9042`,</span> <span class="hljs-string">`FLUENTD_HOST=fluentd`</span>                               <span class="hljs-string">|</span> <span class="hljs-string">cassandra</span> <span class="hljs-string">(healthy)</span>         <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                                             <span class="hljs-string">|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">todo-front</span>          <span class="hljs-string">|</span> <span class="hljs-string">`./todo-front`</span>     <span class="hljs-string">|</span> [<span class="hljs-string">Dockerfile</span>]<span class="hljs-string">(./todo-front/Dockerfile)</span>    <span class="hljs-string">|</span> <span class="hljs-string">`3000:3000`</span>    <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                                                                                                       <span class="hljs-string">|</span> <span class="hljs-string">todo-api</span>                     <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                                             <span class="hljs-string">|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">cassandra</span>           <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                <span class="hljs-string">|</span> [<span class="hljs-string">Dockerfile</span>]<span class="hljs-string">(./cassandra/Dockerfile)</span>      <span class="hljs-string">|</span> <span class="hljs-string">`9042:9042`</span>    <span class="hljs-string">|</span> <span class="hljs-string">`CASSANDRA_CLUSTER_NAME=TodoCluster`,</span> <span class="hljs-string">`CASSANDRA_DC=DC1`,</span> <span class="hljs-string">`CASSANDRA_RACK=RAC1`</span>                       <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                          <span class="hljs-string">|</span> <span class="hljs-string">`cqlsh</span> <span class="hljs-string">-e</span> <span class="hljs-string">&quot;describe cluster&quot;</span><span class="hljs-string">`</span>                  <span class="hljs-string">|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">fluentd</span>             <span class="hljs-string">|</span> <span class="hljs-string">`./fluentd`</span>        <span class="hljs-string">|</span> [<span class="hljs-string">Dockerfile</span>]<span class="hljs-string">(./fluentd/Dockerfile)</span>        <span class="hljs-string">|</span> <span class="hljs-string">`24224:24224`</span>  <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                                                                                                       <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                          <span class="hljs-string">|</span> <span class="hljs-string">`curl</span> <span class="hljs-string">-f</span> <span class="hljs-string">http://localhost:24224`</span>              <span class="hljs-string">|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">opensearch</span>          <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                <span class="hljs-string">|</span> [<span class="hljs-string">Dockerfile</span>]<span class="hljs-string">(./opensearch/Dockerfile)</span>      <span class="hljs-string">|</span> <span class="hljs-string">`9200:9200`</span>    <span class="hljs-string">|</span> <span class="hljs-string">`discovery.type=single-node`,</span> <span class="hljs-string">`OPENSEARCH_INITIAL_ADMIN_PASSWORD=Gize@123!`,</span> <span class="hljs-string">`plugins.security.ssl.http.enabled=false`,</span> <span class="hljs-string">`plugins.security.ssl.transport.enabled=true`</span> <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                          <span class="hljs-string">|</span> <span class="hljs-string">`curl</span> <span class="hljs-string">-f</span> <span class="hljs-string">http://localhost:9200`</span>               <span class="hljs-string">|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">opensearch-dashboard</span> <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                <span class="hljs-string">|</span> [<span class="hljs-string">Dockerfile</span>]<span class="hljs-string">(./opensearch-dashboard/Dockerfile)</span> <span class="hljs-string">|</span> <span class="hljs-string">`5601:5601`</span>    <span class="hljs-string">|</span> <span class="hljs-string">`OPENSEARCH_HOSTS=http://opensearch:9200`,</span> <span class="hljs-string">`OPENSEARCH_USERNAME=Gize`,</span> <span class="hljs-string">`OPENSEARCH_PASSWORD=Gize@123!`</span> <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                          <span class="hljs-string">|</span> <span class="hljs-string">N/A</span>                                             <span class="hljs-string">|</span>
+
+<span class="hljs-comment">### Volumes</span>
+
+<span class="hljs-string">|</span> <span class="hljs-string">Volume</span> <span class="hljs-string">Name</span>       <span class="hljs-string">|</span> <span class="hljs-string">Path</span>                         <span class="hljs-string">|</span>
+<span class="hljs-string">|-------------------|------------------------------|</span>
+<span class="hljs-string">|</span> <span class="hljs-string">cassandra_data</span>    <span class="hljs-string">|</span> <span class="hljs-string">`/var/lib/cassandra`</span>         <span class="hljs-string">|</span>
+
+<span class="hljs-comment">## Docker Image Optimization</span>
+
+<span class="hljs-string">To</span> <span class="hljs-string">enhance</span> <span class="hljs-string">the</span> <span class="hljs-string">efficiency</span> <span class="hljs-string">and</span> <span class="hljs-string">performance</span> <span class="hljs-string">of</span> <span class="hljs-string">the</span> <span class="hljs-string">Docker</span> <span class="hljs-string">images</span> <span class="hljs-string">used</span> <span class="hljs-string">in</span> <span class="hljs-string">this</span> <span class="hljs-string">application,</span> <span class="hljs-attr">the following strategies were implemented:</span>
+
+<span class="hljs-number">1</span><span class="hljs-string">.</span> <span class="hljs-string">**Multi-Stage</span> <span class="hljs-string">Builds**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">The</span> <span class="hljs-string">Dockerfile</span> <span class="hljs-string">employs</span> <span class="hljs-string">multi-stage</span> <span class="hljs-string">builds</span> <span class="hljs-string">to</span> <span class="hljs-string">separate</span> <span class="hljs-string">the</span> <span class="hljs-string">build</span> <span class="hljs-string">environment</span> <span class="hljs-string">from</span> <span class="hljs-string">the</span> <span class="hljs-string">production</span> <span class="hljs-string">environment,</span> <span class="hljs-string">reducing</span> <span class="hljs-string">the</span> <span class="hljs-string">final</span> <span class="hljs-string">image</span> <span class="hljs-string">size</span> <span class="hljs-string">and</span> <span class="hljs-string">including</span> <span class="hljs-string">only</span> <span class="hljs-string">the</span> <span class="hljs-string">necessary</span> <span class="hljs-string">artifacts</span> <span class="hljs-string">for</span> <span class="hljs-string">application</span> <span class="hljs-string">execution.</span>
+
+<span class="hljs-number">2</span><span class="hljs-string">.</span> <span class="hljs-string">**Base</span> <span class="hljs-string">Image</span> <span class="hljs-string">Selection**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Utilizing</span> <span class="hljs-string">the</span> <span class="hljs-string">`node:18-alpine`</span> <span class="hljs-string">base</span> <span class="hljs-string">image</span> <span class="hljs-string">minimizes</span> <span class="hljs-string">the</span> <span class="hljs-string">overall</span> <span class="hljs-string">size</span> <span class="hljs-string">compared</span> <span class="hljs-string">to</span> <span class="hljs-string">standard</span> <span class="hljs-string">Debian-based</span> <span class="hljs-string">images.</span>
+
+<span class="hljs-number">3</span><span class="hljs-string">.</span> <span class="hljs-string">**Conditional</span> <span class="hljs-string">Dependency</span> <span class="hljs-string">Installation**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Dependencies</span> <span class="hljs-string">are</span> <span class="hljs-string">installed</span> <span class="hljs-string">based</span> <span class="hljs-string">on</span> <span class="hljs-string">the</span> <span class="hljs-string">presence</span> <span class="hljs-string">of</span> <span class="hljs-string">specific</span> <span class="hljs-string">lock</span> <span class="hljs-string">files</span> <span class="hljs-string">(`yarn.lock`,</span> <span class="hljs-string">`package-lock.json`,</span> <span class="hljs-string">or</span> <span class="hljs-string">`pnpm-lock.yaml`),</span> <span class="hljs-string">ensuring</span> <span class="hljs-string">consistent</span> <span class="hljs-string">installations</span> <span class="hljs-string">and</span> <span class="hljs-string">flexibility</span> <span class="hljs-string">in</span> <span class="hljs-string">managing</span> <span class="hljs-string">dependencies.</span>
+
+<span class="hljs-number">4</span><span class="hljs-string">.</span> <span class="hljs-string">**User</span> <span class="hljs-string">Permissions**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">The</span> <span class="hljs-string">application</span> <span class="hljs-string">runs</span> <span class="hljs-string">as</span> <span class="hljs-string">a</span> <span class="hljs-string">non-root</span> <span class="hljs-string">user</span> <span class="hljs-string">(`nextjs`)</span> <span class="hljs-string">to</span> <span class="hljs-string">enhance</span> <span class="hljs-string">security</span> <span class="hljs-string">and</span> <span class="hljs-string">prevent</span> <span class="hljs-string">privilege</span> <span class="hljs-string">escalation</span> <span class="hljs-string">vulnerabilities.</span>
+
+<span class="hljs-number">5</span><span class="hljs-string">.</span> <span class="hljs-string">**Environment</span> <span class="hljs-string">Variables**:</span> 
+   <span class="hljs-bullet">-</span> <span class="hljs-string">Environment</span> <span class="hljs-string">variables</span> <span class="hljs-string">are</span> <span class="hljs-string">used</span> <span class="hljs-string">to</span> <span class="hljs-string">configure</span> <span class="hljs-string">application</span> <span class="hljs-string">settings,</span> <span class="hljs-string">making</span> <span class="hljs-string">the</span> <span class="hljs-string">images</span> <span class="hljs-string">more</span> <span class="hljs-string">flexible</span> <span class="hljs-string">and</span> <span class="hljs-string">easier</span> <span class="hljs-string">to</span> <span class="hljs-string">maintain</span> <span class="hljs-string">without</span> <span class="hljs-string">code</span> <span class="hljs-string">changes.</span>
+
+<span class="hljs-comment">## Screenshots</span>
+
+<span class="hljs-comment">### Example Application Screenshot</span>
+
+<span class="hljs-type">![Example</span> <span class="hljs-string">Application</span> <span class="hljs-string">Screenshot](images/front.png)</span>
+
+<span class="hljs-comment">### CI/CD Pipeline Screenshot</span>
+
+<span class="hljs-type">![CI/CD</span> <span class="hljs-string">Pipeline</span> <span class="hljs-string">Screenshot](images/opensearch.png)</span>
+
+<span class="hljs-comment">### OpenSearch Dashboard Screenshot</span>
+
+<span class="hljs-type">![OpenSearch</span> <span class="hljs-string">Dashboard</span> <span class="hljs-string">Screenshot](images/opensearchsampledata.png)</span>
+
+<span class="hljs-type">![OpenSearch</span> <span class="hljs-string">Dashboard</span> <span class="hljs-string">Screenshot](images/projectstructure.png)</span>
+
+<span class="hljs-comment">## Contact Information</span>
+
+<span class="hljs-string">For</span> <span class="hljs-string">questions</span> <span class="hljs-string">or</span> <span class="hljs-string">further</span> <span class="hljs-string">information,</span> <span class="hljs-attr">please contact:</span>
+
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Name**:</span> <span class="hljs-string">Gizework</span> <span class="hljs-string">Melkamu</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Email**:</span> <span class="hljs-string">gizeworkmelkamu70@gmail.com</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**GitHub**:</span> [<span class="hljs-string">Your</span> <span class="hljs-string">GitHub</span> <span class="hljs-string">Profile</span>]<span class="hljs-string">(https://github.com/gize21)</span>
+<span class="hljs-bullet">-</span> <span class="hljs-string">**Role**:</span> <span class="hljs-string">Softare</span> <span class="hljs-string">Engineer,</span> <span class="hljs-string">DevOps</span> <span class="hljs-string">Engineer</span></code></pre>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>

@@ -1,0 +1,184 @@
+{
+	"info": {
+		"_postman_id": "b8e82118-6c69-43b6-a7ab-cbb595e00261",
+		"name": "Todo-Api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "20813812"
+	},
+	"item": [
+		{
+			"name": "create todo",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"ba8a2dee-ca8e-47a6-afde-de57a7f04ef1\",\n    \"title\": \"Bake\",\n    \"description\": \"Bake a Cake\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/todo",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"todo"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update todo by id",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"title\": \"Buy Groceries\",\n    \"description\": \"Need to buy milk, bread, and eggs\",\n    \"status\":\"In Progress\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/todo/09cb06bc-0f98-46af-9f57-b51521fc5a2e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"todo",
+						"09cb06bc-0f98-46af-9f57-b51521fc5a2e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create users",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"Zack\",\n    \"email\": \"zack@gmail.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get todo by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/api/v1/todo/9ecb3c2f-ffae-4722-8594-7b5fb219f265",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"todo",
+						"9ecb3c2f-ffae-4722-8594-7b5fb219f265"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete todo by id",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/api/v1/todo/995de4f3-219b-457d-93c3-71832f534f77",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"todo",
+						"995de4f3-219b-457d-93c3-71832f534f77"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get todos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/api/v1/todos?pageSize=10&lastID=&status=Pending&sortOrder=desc",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"todos"
+					],
+					"query": [
+						{
+							"key": "pageSize",
+							"value": "10"
+						},
+						{
+							"key": "lastID",
+							"value": ""
+						},
+						{
+							"key": "status",
+							"value": "Pending"
+						},
+						{
+							"key": "sortOrder",
+							"value": "desc"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

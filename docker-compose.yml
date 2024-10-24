@@ -1,0 +1,101 @@
+version: '3.8'
+
+networks:
+  todo-network:
+    driver: bridge  # Default driver
+
+services:
+  todo-api:
+    build:
+      context: ./todo-api
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - CASSANDRA_HOST=cassandra
+      - CASSANDRA_PORT=9042
+      - FLUENTD_HOST=fluentd
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    networks:
+      - todo-network
+
+  todo-front:
+    build:
+      context: ./todo-front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - todo-api
+    networks:
+      - todo-network
+
+  cassandra:
+    image: cassandra:latest
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TodoCluster
+      - CASSANDRA_DC=DC1
+      - CASSANDRA_RACK=RAC1
+    volumes:
+      - cassandra_data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe cluster"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - todo-network
+
+  fluentd:
+    build:
+      context: ./fluentd
+      dockerfile: Dockerfile  # Make sure the Dockerfile is in this directory
+    # image: fluent/fluentd:v1.12-1
+    ports:
+      - "24224:24224"
+    volumes:
+      - ./fluentd/conf:/fluentd/etc 
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:24224"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=Getinet@123!
+      - plugins.security.ssl.http.enabled=false  # HTTP SSL disabled
+      - plugins.security.ssl.transport.enabled=true  # Transport SSL enabled
+    ports:
+      - "9200:9200"  # Expose HTTP port
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - todo-network
+
+  opensearch-dashboard:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboard
+    ports:
+      - "5601:5601"
+    environment:
+      - OPENSEARCH_HOSTS=http://opensearch:9200
+      - OPENSEARCH_USERNAME=admin
+      - OPENSEARCH_PASSWORD=Getinet@123!
+    networks:
+      - todo-network
+
+volumes:
+  cassandra_data:
