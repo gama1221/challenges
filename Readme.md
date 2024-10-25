@@ -96,6 +96,7 @@ jobs:
             steps:
             - script: echo "Deploying Next.js to test environment"
               displayName: 'Deploy Next.js'
+```
 ## Overview
 
 This document provides a comprehensive overview of the Docker Compose configuration for the application, the CI/CD pipeline setup using Azure DevOps, and the implementation of a logging stack utilizing Fluentd and OpenSearch. Additionally, it outlines strategies for optimizing Docker images and ensuring adherence to security best practices.
