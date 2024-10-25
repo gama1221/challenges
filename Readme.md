@@ -212,7 +212,7 @@ To enhance the efficiency and performance of the Docker images used in this appl
 
 ![OpenSearch Dashboard Screenshot](images/opensearchsampledata.png)
 
-![OpenSearch Dashboard Screenshot](images/projectstructure.png)
+![OpenSearch Dashboard Screenshot](images/projetcstructure.png)
 
 ## Contact Information
 
